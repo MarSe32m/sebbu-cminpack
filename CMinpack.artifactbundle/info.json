@@ -1,0 +1,19 @@
+{
+    "schemaVersion": "1.0",
+    "artifacts": {
+        "_CMinpack": {
+            "type": "staticLibrary",
+            "version": "1.3.11",
+            "variants": [
+                {
+                    "path": "lib/x86_64-unknown-windows-msvc/cminpack_s.lib",
+                    "supportedTriples": ["x86_64-unknown-windows-msvc"],
+                    "staticLibraryMetadata": {
+                        "headerPaths": ["include"],
+                        "moduleMapPath": "include/module.modulemap"
+                    }
+                }
+            ]
+        }
+    }
+}
