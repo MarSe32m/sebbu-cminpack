@@ -12,6 +12,54 @@
                         "headerPaths": ["include"],
                         "moduleMapPath": "include/module.modulemap"
                     }
+                },
+                {
+                    "path": "lib/x86_64-apple-macosx/libcminpack_s.a",
+                    "supportedTriples": ["x86_64-apple-macosx"],
+                    "staticLibraryMetadata": {
+                        "headerPaths": ["include"],
+                        "moduleMapPath": "include/module.modulemap"
+                    }
+                },
+                {
+                    "path": "lib/arm64-apple-macosx/libcminpack_s.a",
+                    "supportedTriples": ["arm64-apple-macosx"],
+                    "staticLibraryMetadata": {
+                        "headerPaths": ["include"],
+                        "moduleMapPath": "include/module.modulemap"
+                    }
+                },
+                {
+                    "path": "lib/x86_64-unknown-linux-gnu/libcminpack_s.a",
+                    "supportedTriples": ["x86_64-unknown-linux-gnu"],
+                    "staticLibraryMetadata": {
+                        "headerPaths": ["include"],
+                        "moduleMapPath": "include/module.modulemap"
+                    }
+                },
+                {
+                    "path": "lib/aarch64-unknown-linux-gnu/libcminpack_s.a",
+                    "supportedTriples": ["aarch64-unknown-linux-gnu"],
+                    "staticLibraryMetadata": {
+                        "headerPaths": ["include"],
+                        "moduleMapPath": "include/module.modulemap"
+                    }
+                },
+                {
+                    "path": "lib/x86_64-swift-linux-musl/libcminpack_s.a",
+                    "supportedTriples": ["x86_64-swift-linux-musl"],
+                    "staticLibraryMetadata": {
+                        "headerPaths": ["include"],
+                        "moduleMapPath": "include/module.modulemap"
+                    }
+                },
+                {
+                    "path": "lib/aarch64-swift-linux-musl/libcminpack_s.a",
+                    "supportedTriples": ["aarch64-swift-linux-musl"],
+                    "staticLibraryMetadata": {
+                        "headerPaths": ["include"],
+                        "moduleMapPath": "include/module.modulemap"
+                    }
                 }
             ]
         }

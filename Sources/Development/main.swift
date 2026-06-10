@@ -1,5 +1,9 @@
 import CMinpack
-
+import Foundation
+class ExpFitProblem {
+    let t: [Double] = [1]
+    let y: [Double] = [1]
+}
 let residualCallback: @convention(c) (
     UnsafeMutableRawPointer?,
     CInt,
@@ -33,4 +37,5 @@ let residualCallback: @convention(c) (
 }
 
 print("hello")
-lmdif1(nil, nil, )
+lmdif1(nil, nil, 0, 0, nil, nil, 0, nil, nil, 0)
+//lmdif1(nil, nil, )

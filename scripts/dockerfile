@@ -1,0 +1,86 @@
+# syntax=docker/dockerfile:1.7
+
+ARG DEBIAN_VERSION=bookworm
+ARG ALPINE_VERSION=3.22
+
+# ----------------------------
+# glibc Linux build
+# ----------------------------
+FROM --platform=$TARGETPLATFORM debian:${DEBIAN_VERSION} AS gnu-build
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    cmake \
+    ninja-build \
+    clang \
+    build-essential \
+    file \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY cminpack /src/cminpack
+
+RUN set -eux; \
+    arch="$(uname -m)"; \
+    case "$arch" in \
+      x86_64) triple="x86_64-unknown-linux-gnu" ;; \
+      aarch64) triple="aarch64-unknown-linux-gnu" ;; \
+      *) echo "Unsupported arch: $arch" >&2; exit 1 ;; \
+    esac; \
+    cmake -S /src/cminpack -B "/build/$triple" \
+      -G Ninja \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX="/stage/$triple" \
+      -DBUILD_SHARED_LIBS=OFF \
+      -DCMINPACK_PRECISION=d \
+      -DUSE_BLAS=OFF \
+      -DCMAKE_C_COMPILER=clang; \
+    cmake --build "/build/$triple"; \
+    cmake --install "/build/$triple"; \
+    mkdir -p "/out/$triple"; \
+    cp -R "/stage/$triple/include" "/out/$triple/include"; \
+    cp -R "/stage/$triple/lib" "/out/$triple/lib"; \
+    find "/out/$triple" -type f -maxdepth 4 -print -exec file {} \;
+
+# ----------------------------
+# musl Linux build
+# ----------------------------
+FROM --platform=$TARGETPLATFORM alpine:${ALPINE_VERSION} AS musl-build
+
+RUN apk add --no-cache \
+    cmake \
+    ninja \
+    clang \
+    build-base \
+    file
+
+COPY cminpack /src/cminpack
+
+RUN set -eux; \
+    arch="$(uname -m)"; \
+    case "$arch" in \
+      x86_64) triple="x86_64-unknown-linux-musl" ;; \
+      aarch64) triple="aarch64-unknown-linux-musl" ;; \
+      *) echo "Unsupported arch: $arch" >&2; exit 1 ;; \
+    esac; \
+    cmake -S /src/cminpack -B "/build/$triple" \
+      -G Ninja \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX="/stage/$triple" \
+      -DBUILD_SHARED_LIBS=OFF \
+      -DCMINPACK_PRECISION=d \
+      -DUSE_BLAS=OFF \
+      -DCMAKE_C_COMPILER=clang; \
+    cmake --build "/build/$triple"; \
+    cmake --install "/build/$triple"; \
+    mkdir -p "/out/$triple"; \
+    cp -R "/stage/$triple/include" "/out/$triple/include"; \
+    cp -R "/stage/$triple/lib" "/out/$triple/lib"; \
+    find "/out/$triple" -type f -maxdepth 4 -print -exec file {} \;
+
+# ----------------------------
+# Export-only final image
+# ----------------------------
+FROM scratch AS export
+
+COPY --from=gnu-build /out /
+COPY --from=musl-build /out /
