@@ -25,10 +25,6 @@ let package = Package(
                 .linkedLibrary("m", .when(platforms: [.linux]))
             ]
         ),
-//        .binaryTarget(
-//            name: "_CMinpack", 
-//            path: "CMinpack.artifactbundle"
-//        ),
         .executableTarget(
             name: "Development",
             dependencies: ["CMinpack"]
