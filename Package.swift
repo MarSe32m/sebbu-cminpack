@@ -17,16 +17,18 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "CMinpack",
-            dependencies: ["_CMinpack"],
             path: "Sources/CMinpack",
+            cSettings: [
+                .define("CMINPACK_NO_DLL")
+            ],
             linkerSettings: [
                 .linkedLibrary("m", .when(platforms: [.linux]))
             ]
         ),
-        .binaryTarget(
-            name: "_CMinpack", 
-            path: "CMinpack.artifactbundle"
-        ),
+//        .binaryTarget(
+//            name: "_CMinpack", 
+//            path: "CMinpack.artifactbundle"
+//        ),
         .executableTarget(
             name: "Development",
             dependencies: ["CMinpack"]

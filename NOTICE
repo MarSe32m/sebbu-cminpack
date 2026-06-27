@@ -1,4 +1,4 @@
-SwiftCMinpack includes prebuilt binaries and headers from cminpack/MINPACK.
+sebbu-cminpack includes sources and headers from cminpack/MINPACK.
 
 cminpack is a C/C++ rewrite of MINPACK derived from the original Fortran
 MINPACK code. MINPACK is licensed under the Minpack license.

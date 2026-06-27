@@ -1,0 +1,4 @@
+module CMinpack {
+    header "cminpack.h"
+    export *
+}

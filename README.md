@@ -1,5 +1,5 @@
 # sebbu-cminpack
-Swift package vendoring cminpack as a static library.
+Swift package vendoring cminpack sources as a Swift package.
 
 ## License
 
