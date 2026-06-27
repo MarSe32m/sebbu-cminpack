@@ -10,3 +10,4 @@ DerivedData/
 scripts/build
 scripts/stage
 scripts/artifacts
+.swiftpm
