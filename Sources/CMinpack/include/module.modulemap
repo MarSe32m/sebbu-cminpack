@@ -1,4 +1,4 @@
 module CMinpack {
-    header "cminpack.h"
+    umbrella header "include.h"
     export *
 }
