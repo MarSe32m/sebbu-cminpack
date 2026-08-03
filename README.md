@@ -1,14 +1,13 @@
 # sebbu-cminpack
-Swift package vendoring cminpack sources as a Swift package.
+
+A Swift package that vendors the sources of [cminpack](https://github.com/devernay/cminpack) and compiles them as part of your build.
+
+This allows Swift packages to use cminpack without requiring a separate system installation or downloading prebuilt libraries.
 
 ## License
 
-The Swift wrapper/package code in this repository is licensed under the MIT
-License. See `LICENSE`.
+The Swift Package Manager integration and other original code in this repository are licensed under the MIT License. See `LICENSE`.
 
-This package vendors prebuilt cminpack/MINPACK static libraries and headers.
-cminpack/MINPACK is licensed separately under the Minpack license. See
-`ThirdPartyNotices/MINPACK.txt`.
+The vendored cminpack/MINPACK source code and headers are licensed separately under the MINPACK license. See `ThirdPartyNotices/MINPACK.txt`.
 
-This product includes software developed by the University of Chicago, as
-Operator of Argonne National Laboratory.
+This product includes software developed by the University of Chicago, as Operator of Argonne National Laboratory.
