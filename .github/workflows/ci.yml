@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   native:
-    name: Native (${{ matrix.os }})
+    name: Native (${{ matrix.os }}, Swift ${{ matrix.swift }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -43,7 +43,7 @@ jobs:
         run: swift build -c release
 
   static-linux:
-    name: Static Linux (${{ matrix.sdk }})
+    name: Static Linux (${{ matrix.sdk }}, Swift ${{ matrix.swift }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
