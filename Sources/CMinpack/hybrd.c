@@ -227,7 +227,8 @@ int __cminpack_func__(hybrd)(__cminpack_decl_fcn_nn__ void *p, int n, real *x, r
 /*     check the input parameters for errors. */
 
     if (n <= 0 || xtol < 0. || maxfev <= 0 || ml < 0 || mu < 0 ||
-	    factor <= 0. || ldfjac < n || (size_t)lr < (size_t)n * (n + 1) / 2) {
+	    factor <= 0. || ldfjac < n || lr < 0 ||
+	    (unsigned long long)lr < n * (n + 1ULL) / 2) {
 	goto TERMINATE;
     }
     if (mode == 2) {
@@ -252,6 +253,9 @@ int __cminpack_func__(hybrd)(__cminpack_decl_fcn_nn__ void *p, int n, real *x, r
 /*     the jacobian matrix. */
 
 /* Computing MIN */
+    /* ml, mu >= n-1 mean dense: clamp so that ml + mu + 1 cannot overflow */
+    if (ml > n - 1) ml = n - 1;
+    if (mu > n - 1) mu = n - 1;
     i1 = ml + mu + 1;
     msum = min(i1,n);
 
@@ -568,3 +572,4 @@ TERMINATE:
 
 } /* hybrd_ */
 
+#undef p001

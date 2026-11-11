@@ -48,8 +48,8 @@
   because the middle-band boundary differs, a vector with very small
   (< 3.834e-20) or very large (> 1.304e19) components is bucketed differently
   and its Euclidean norm can then differ in the last bit. Both norms are equally
-  correct. cminpack's pure C (src/.c) is a hand-cleaned-up rewrite of the f2c
-  output (src/f2c/.c): they agree on well-conditioned inputs, but the cleanup
+  correct. cminpack's pure C (src/) is a hand-cleaned-up rewrite of the f2c
+  output (src/f2c/): they agree on well-conditioned inputs, but the cleanup
   regrouped some expressions, so a compiler can contract FMAs differently in the
   two and -- for the same reason (below) -- they can reach different, equally
   valid results on the hardest driver problems. examples/crosscheck.py reports
@@ -74,8 +74,13 @@
 */
 #define double_dwarf (1.82691291192569e-153)
 #define double_giant (1.34078079299426e+153)
+#if LDBL_MAX_EXP == 16384
 #define long_double_dwarf (2.245696932951581572e-2465l)
 #define long_double_giant (1.090748135619415929e+2465l)
+#else
+#define long_double_dwarf (sqrtl(LDBL_MIN*1.5l)*10.l)
+#define long_double_giant (sqrtl(LDBL_MAX)*0.1l)
+#endif
 #define float_dwarf (1.327871072777421e-18f)
 #define float_giant (1.844674297419792e+18f)
 #define half_dwarf (0.015625f)
@@ -96,7 +101,8 @@ real __cminpack_func__(enorm)(int n, const real *x)
     /* dnrm2 does its own overflow/underflow-safe scaling, so the rdwarf/rgiant
        algorithm and constants below are unused in this build. */
     const __cminpack_blasint__ c__1 = 1;
-    return __cminpack_blas__(nrm2)(&n, x, &c__1);
+    const __cminpack_blasint__ n_ = n; /* may be wider than int */
+    return __cminpack_blas__(nrm2)(&n_, x, &c__1);
 #else /* !USE_BLAS */
     /* System generated locals */
     real ret_val, d1;

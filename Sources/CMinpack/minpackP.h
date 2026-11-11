@@ -7,7 +7,9 @@
 #endif
 
 #include <float.h>
-#include <stddef.h> /* size_t, used for overflow-safe size checks */
+/* declare the functions remapped below before defining the macros */
+#include <math.h>
+#include <stdlib.h>
 
 #define double_EPSILON DBL_EPSILON
 #define double_MIN DBL_MIN
@@ -57,9 +59,21 @@
 /* NOTE: these function-like macros evaluate their arguments more than once, so
    callers must pass side-effect-free, cheap expressions (cminpack's own code
    always passes plain variables or precomputed temporaries such as d1/d2). */
+
+#ifdef _WIN32 // Windows defines these macros in stdlib.h
+#undef min
+#undef max
+#endif
+
 #define min(a,b) ((a) <= (b) ? (a) : (b))
 #define max(a,b) ((a) >= (b) ? (a) : (b))
 #define abs(x) ((x) >= 0 ? (x) : -(x))
+/* qrfac and qform transform CMINPACK_BLOCK columns at a time (default 4).
+   It can be set at compile time: e.g. -DCMINPACK_BLOCK=8 is faster on arm64,
+   which has more floating-point registers. */
+#ifndef CMINPACK_BLOCK
+#define CMINPACK_BLOCK 4
+#endif
 #define TRUE_ (1)
 #define FALSE_ (0)
 

@@ -98,21 +98,20 @@ void __cminpack_func__(qrfac)(int m, int n, real *a, int
         abort();
     }
     
-    /* set rdiag, before the diagonal is replaced */
-    memset(rdiag, 0, sizeof(real)*n);
-    for(i=0 ; i<n ; ++i) {
-        rdiag[i] = a[i*lda+i];
-    }
-    
-    /* rebuild the lower triangle in minpack qrfac's u-vector format */
+    /* set rdiag and rebuild the lower triangle in minpack qrfac's u-vector
+       format. tau (wa) may coincide with rdiag: read tau[i] first. */
     for(i=0 ; i<ltau ; ++i) {
         k = i*lda+i;
         t = tau[i];
+        rdiag[i] = a[k];
         a[k] = t;
         for(j=i+1 ; j<m ; j++) {
             k++;
             a[k] *= t;
         }
+    }
+    for(i=ltau ; i<n ; ++i) {
+        rdiag[i] = 0.;
     }
     
     free(work);
@@ -286,7 +285,44 @@ void __cminpack_func__(qrfac)(int m, int n, real *a, int
 
             jp1 = j + 1;
             if (n > jp1) {
-                for (k = jp1; k < n; ++k) {
+                /* Transform CMINPACK_BLOCK columns at a time: their dot
+                   products are independent, so interleaving them hides the
+                   latency of the additions, and column j is read once per
+                   block. Each sum is accumulated in the same order as one
+                   column at a time, so the results are unchanged (unless the
+                   compiler contracts expressions to FMA differently). */
+                for (k = jp1; k + CMINPACK_BLOCK <= n; k += CMINPACK_BLOCK) {
+                    real s[CMINPACK_BLOCK];
+                    int q;
+                    for (q = 0; q < CMINPACK_BLOCK; ++q) {
+                        s[q] = 0.;
+                    }
+                    /* the loops over q must be unrolled, so that the sums
+                       stay in registers; gcc does not do it by itself at -O2
+                       (64: any block size up to 64 is unrolled fully) */
+                    for (i = j; i < m; ++i) {
+                        const real u = a[i + j * lda];
+#if defined(__GNUC__) && !defined(__CUDACC__)
+#pragma GCC unroll 64
+#endif
+                        for (q = 0; q < CMINPACK_BLOCK; ++q) {
+                            s[q] += u * a[i + (k + q) * lda];
+                        }
+                    }
+                    for (q = 0; q < CMINPACK_BLOCK; ++q) {
+                        s[q] /= a[j + j * lda];
+                    }
+                    for (i = j; i < m; ++i) {
+                        const real u = a[i + j * lda];
+#if defined(__GNUC__) && !defined(__CUDACC__)
+#pragma GCC unroll 64
+#endif
+                        for (q = 0; q < CMINPACK_BLOCK; ++q) {
+                            a[i + (k + q) * lda] -= s[q] * u;
+                        }
+                    }
+                }
+                for (; k < n; ++k) {
                     sum = 0.;
                     for (i = j; i < m; ++i) {
                         sum += a[i + j * lda] * a[i + k * lda];
@@ -295,7 +331,9 @@ void __cminpack_func__(qrfac)(int m, int n, real *a, int
                     for (i = j; i < m; ++i) {
                         a[i + k * lda] -= temp * a[i + j * lda];
                     }
-                    if (pivot && rdiag[k] != 0.) {
+                }
+                for (k = jp1; pivot && k < n; ++k) {
+                    if (rdiag[k] != 0.) {
                         temp = a[j + k * lda] / rdiag[k];
                         /* Computing MAX */
                         d1 = 1 - temp * temp;

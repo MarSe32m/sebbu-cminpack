@@ -125,6 +125,9 @@ int __cminpack_func__(fdjac1)(__cminpack_decl_fcn_nn__ void *p, int n, real *x, 
     epsmch = __cminpack_func__(dpmpar)(1);
 
     eps = sqrt((max(epsfcn,epsmch)));
+    /* ml, mu >= n-1 mean dense: clamp so that ml + mu + 1 cannot overflow */
+    if (ml > n - 1) ml = n - 1;
+    if (mu > n - 1) mu = n - 1;
     msum = ml + mu + 1;
     if (msum >= n) {
 
@@ -142,10 +145,10 @@ int __cminpack_func__(fdjac1)(__cminpack_decl_fcn_nn__ void *p, int n, real *x, 
                the Jacobian (see fcn() in examples/hybdrv.c, and how njev
                is used to compute the number of Jacobian evaluations) */
             iflag = fcn_nn(p, n, &x[1], &wa1[1], 2);
+            x[j] = temp;
             if (iflag < 0) {
                 return iflag;
             }
-            x[j] = temp;
             for (i = 1; i <= n; ++i) {
                 fjac[i + j * fjac_dim1] = (wa1[i] - fvec[i]) / h;
             }
@@ -170,6 +173,9 @@ int __cminpack_func__(fdjac1)(__cminpack_decl_fcn_nn__ void *p, int n, real *x, 
 	   return value is stored in the local iflag and checked for termination. */
 	iflag = fcn_nn(p, n, &x[1], &wa1[1], 2);
 	if (iflag < 0) {
+            for (j = k; j <= n; j += msum) {
+                x[j] = wa2[j];
+            }
             return iflag;
 	}
 	for (j = k; j <= n; j += msum) {

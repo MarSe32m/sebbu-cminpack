@@ -11,17 +11,19 @@
 #endif
 
 #ifdef USE_BLAS
-#ifdef __APPLE__
-#include <Accelerate/Accelerate.h>
-#define __cminpack_blasint__ int
-#else /* !__APPLE__ */
 #ifndef __cminpack_blasint__
 #define __cminpack_blasint__ int
 #endif
-__cminpack_real__ __cminpack_blas__(dot)(
+#if defined(__APPLE__) && defined(__cminpack_float__)
+/* Accelerate's Fortran BLAS returns double from single precision functions */
+#define __cminpack_blasreal__ double
+#else
+#define __cminpack_blasreal__ __cminpack_real__
+#endif
+__cminpack_blasreal__ __cminpack_blas__(dot)(
   const __cminpack_blasint__ *N, const __cminpack_real__ *X, const __cminpack_blasint__ *incX,
   const __cminpack_real__ *Y, const __cminpack_blasint__ *incY);
-__cminpack_real__ __cminpack_blas__(nrm2)(
+__cminpack_blasreal__ __cminpack_blas__(nrm2)(
   const __cminpack_blasint__ *N, const __cminpack_real__ *X, const __cminpack_blasint__ *incX);
 void __cminpack_blas__(swap)(
   const __cminpack_blasint__ *N, __cminpack_real__ *X, const __cminpack_blasint__ *incX,
@@ -34,13 +36,9 @@ void __cminpack_blas__(trsv)(
   const char *TransA, const char *Diag,
   const __cminpack_blasint__ *N, const __cminpack_real__ *A, const __cminpack_blasint__ *lda, __cminpack_real__ *X,
   const __cminpack_blasint__ *incX);
-#endif /* !__APPLE__ */
 #endif /* USE_BLAS */
 
 #ifdef USE_LAPACK
-#ifdef __APPLE__
-#include <Accelerate/Accelerate.h>
-#else /* !__APPLE__ */
 #if defined(__LP64__) /* In LP64 match sizes with the 32 bit ABI */
 typedef int 		__CLPK_integer;
 typedef int 		__CLPK_logical;
@@ -62,7 +60,6 @@ void __cminpack_lapack__(geqp3_)(
 void __cminpack_lapack__(geqrf_)(
   __CLPK_integer *m, __CLPK_integer *n, __cminpack_real__ *a, __CLPK_integer * lda,
   __cminpack_real__ *tau, __cminpack_real__ *work, __CLPK_integer *lwork, __CLPK_integer *info);
-#endif /* !__APPLE__ */
 #endif
 
 #include "minpackP.h"
