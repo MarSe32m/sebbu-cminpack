@@ -66,6 +66,12 @@
 /* NOTE: these function-like macros evaluate their arguments more than once, so
    callers must pass side-effect-free, cheap expressions (cminpack's own code
    always passes plain variables or precomputed temporaries such as d1/d2). */
+   
+#ifdef _WIN32
+#undef min
+#undef max
+#endif
+
 #define min(a,b) ((a) <= (b) ? (a) : (b))
 #define max(a,b) ((a) >= (b) ? (a) : (b))
 #define abs(x) ((x) >= 0 ? (x) : -(x))
